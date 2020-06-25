@@ -10,6 +10,9 @@ app.use(express.json());
 // DB config
 const db = require('./config/keys').mongoURI;
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useUnifiedTopology', true);
+
 //connect to mongo
 mongoose
   .connect(db)
@@ -21,4 +24,4 @@ app.use('/api/jobs', jobs)
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`server starte on port ${port}`));
+app.listen(port, () => console.log(`server started on port ${port}`));
