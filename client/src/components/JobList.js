@@ -1,60 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect } from "react";
 
-import { v4 as uuid } from 'uuid';
-import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
-import ListGroup from 'react-bootstrap/ListGroup'
+import { connect } from "react-redux";
+import { deleteJob, getJobs } from "../actions/jobActions";
+import Container from "react-bootstrap/Container";
+import Button from "react-bootstrap/Button";
+import ListGroup from "react-bootstrap/ListGroup";
+import PropTypes from "prop-types";
+import JobModal from "./JobModal";
 
+const JobList = props => {
+  useEffect(() => props.getJobs(), []);
 
-const JobList = () => {
-  const [jobs, updateJobs] = useState([
-    {
-      id: uuid(),
-      company: "sumsing",
-      position: "sumppos",
-      link: "peepee.com",
-    },
+  const handleDelete = id => {
+    props.deleteJob(id);
+  };
 
-    {
-      id: uuid(),
-      company: "wee",
-      position: "twolow",
-      link: "peepoo.com",
-    }
-  ]);
-
-  const handleAdd = () => {
-    const company = prompt('enter company name')
-    if (company) {
-      updateJobs([...jobs, { id: uuid(), company: company }])
-    }
-  }
-
-  const handleDelete = (id) => {
-    updateJobs(jobs.filter(job => job.id !== id))
-  }
+  const { jobs } = props.jobs;
 
   return (
     <Container>
-      <Button
-        color="dark"
-        onClick={handleAdd}
-      >
-        Add Job
-      </Button>
-
+      <JobModal />
       <ListGroup>
         {jobs.map(job => {
           return (
             <ListGroup.Item key={job.id}>
               {job.company}
-              <Button variant="danger" onClick={() => handleDelete(job.id)}>Delete</Button>
+              <Button variant="danger" onClick={() => handleDelete(job.id)}>
+                Delete
+              </Button>
             </ListGroup.Item>
-          )
+          );
         })}
       </ListGroup>
     </Container>
-  )
-}
+  );
+};
 
-export default JobList;
+JobList.propTypes = {
+  jobs: PropTypes.object.isRequired,
+};
+
+const mapStateToProps = state => ({
+  jobs: state.jobs,
+});
+
+export default connect(mapStateToProps, { deleteJob, getJobs })(JobList);
