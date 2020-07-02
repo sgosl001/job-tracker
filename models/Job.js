@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const JobSchema = new Schema({
   company: {
     type: String,
-    required: true
+    required: true,
+    unique: true,
   },
   position: {
     type: String,
@@ -15,8 +16,13 @@ const JobSchema = new Schema({
   },
   date: {
     type: Date,
-    default: Date.now
-  }
-})
+    default: Date.now,
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'user',
+  },
+});
 
-module.exports = Item = mongoose.model('job', JobSchema);
+module.exports = Job = mongoose.model('job', JobSchema);

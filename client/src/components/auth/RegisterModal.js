@@ -2,46 +2,46 @@ import React, { useState, useEffect, useRef } from 'react';
 
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
 import { connect } from 'react-redux';
-import { addJob } from '../actions/jobActions';
 import PropTypes from 'prop-types';
-import { clearErrors } from '../actions/errorActions';
+import { register } from '../../actions/authActions';
 import Alert from 'react-bootstrap/Alert';
+import { clearErrors } from '../../actions/errorActions';
 
-const JobModal = props => {
+const RegisterModal = ({ isAuthenticated, error, register, clearErrors }) => {
   const [show, setShow] = useState(false);
-  const [company, setCompany] = useState(null);
-  const [position, setPosition] = useState(null);
-  const [link, setLink] = useState(null);
+  const [name, setName] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
   const [msg, setMsg] = useState(null);
 
   const handleClose = () => {
     clearErrors();
     setShow(false);
   };
-
   const handleShow = () => {
     setShow(true);
   };
 
   const onChange = field => event => {
     const input = event.target.value;
-    field === 'company'
-      ? setCompany(input)
-      : field === 'position'
-      ? setPosition(input)
-      : setLink(input);
+    field === 'name'
+      ? setName(input)
+      : field === 'email'
+      ? setEmail(input)
+      : setPassword(input);
   };
 
   const handleSubmit = e => {
-    const newJob = {
-      company: company,
-      position: position,
-      link: link,
+    const newUser = {
+      name: name,
+      email: email,
+      password: password,
     };
 
-    props.addJob(newJob);
+    register(newUser);
   };
 
   const onSubmit = e => {
@@ -56,87 +56,79 @@ const JobModal = props => {
     return ref.current;
   }
 
-  const prevError = usePrevious(props.error);
+  const prevError = usePrevious(error);
 
   useEffect(() => {
-    if (props.error !== prevError) {
-      if (props.error.id === 'ADD_FAIL') {
-        setMsg(props.error.msg.msg);
+    if (error !== prevError) {
+      if (error.id === 'REGISTER_FAIL') {
+        setMsg(error.msg.msg);
       } else {
         setMsg(null);
       }
     }
 
     if (show) {
-      if (props.isAdded) {
+      if (isAuthenticated) {
         handleClose();
       }
     }
-  }, [props.error, props.isAdded, props.jobs]);
+  }, [error, isAuthenticated]);
 
   return (
-    <>
-      <Button
-        disabled={!props.isAuthenticated}
-        className='w-100 mb-3'
-        color='dark'
-        onClick={handleShow}
-      >
-        Add Job
-      </Button>
+    <div>
+      <Nav.Link onClick={handleShow}>Register</Nav.Link>
       <Modal show={show} onHide={handleClose} centered>
-        <Modal.Header closeButton>Add To Job List</Modal.Header>
+        <Modal.Header closeButton>Register</Modal.Header>
         <Modal.Body>
           {msg && <Alert variant='danger'>{msg}</Alert>}
           <Form onSubmit={onSubmit}>
             <Form.Group>
-              <Form.Label>Company Name</Form.Label>
+              <Form.Label>Username</Form.Label>
               <Form.Control
                 type='text'
-                name='company'
-                onChange={onChange('company')}
+                name='name'
+                onChange={onChange('name')}
               />
             </Form.Group>
 
             <Form.Group>
-              <Form.Label>Position/Description</Form.Label>
+              <Form.Label>Email</Form.Label>
               <Form.Control
                 type='text'
-                name='position'
-                onChange={onChange('position')}
+                name='email'
+                onChange={onChange('email')}
               />
             </Form.Group>
 
             <Form.Group>
-              <Form.Label>Link To Posting</Form.Label>
+              <Form.Label>Password</Form.Label>
               <Form.Control
-                type='text'
-                name='link'
-                onChange={onChange('link')}
+                type='password'
+                name='password'
+                onChange={onChange('password')}
               />
             </Form.Group>
 
-            <Button onClick={handleSubmit}>Add Job</Button>
+            <Button onClick={handleSubmit}>Register</Button>
           </Form>
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 };
 
-JobModal.propTypes = {
+RegisterModal.propTypes = {
   isAuthenticated: PropTypes.bool,
   error: PropTypes.object.isRequired,
+  register: PropTypes.func.isRequired,
   clearErrors: PropTypes.func.isRequired,
-  isAdded: PropTypes.bool,
-  jobs: PropTypes.object,
 };
 
 const mapStateToProps = state => ({
-  jobs: state.jobs,
   isAuthenticated: state.auth.isAuthenticated,
   error: state.error,
-  isAdded: state.jobs.isAdded,
 });
 
-export default connect(mapStateToProps, { addJob, clearErrors })(JobModal);
+export default connect(mapStateToProps, { register, clearErrors })(
+  RegisterModal
+);

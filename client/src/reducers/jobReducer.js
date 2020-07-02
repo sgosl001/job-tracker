@@ -1,22 +1,15 @@
-import { v4 as uuid } from "uuid";
-import { GET_JOBS, ADD_JOB, DELETE_JOB } from "../actions/types";
+import {
+  GET_JOBS,
+  ADD_JOB,
+  DELETE_JOB,
+  JOBS_LOADING,
+  ADD_FAIL,
+} from '../actions/types';
 
 const initialState = {
-  jobs: [
-    {
-      id: uuid(),
-      company: "sumsing",
-      position: "sumppos",
-      link: "peepee.com",
-    },
-
-    {
-      id: uuid(),
-      company: "wee",
-      position: "twolow",
-      link: "peepoo.com",
-    },
-  ],
+  jobs: [],
+  loading: false,
+  isAdded: false,
 };
 
 const jobReducer = (state = initialState, action) => {
@@ -24,16 +17,29 @@ const jobReducer = (state = initialState, action) => {
     case GET_JOBS:
       return {
         ...state,
+        jobs: action.payload,
+        loading: false,
       };
     case DELETE_JOB:
       return {
         ...state,
-        jobs: state.jobs.filter(job => job.id !== action.payload),
+        jobs: state.jobs.filter(job => job._id !== action.payload),
       };
     case ADD_JOB:
       return {
         ...state,
         jobs: [action.payload, ...state.jobs],
+        isAdded: true,
+      };
+    case ADD_FAIL:
+      return {
+        ...state,
+        isAdded: false,
+      };
+    case JOBS_LOADING:
+      return {
+        ...state,
+        loading: true,
       };
     default:
       return state;
